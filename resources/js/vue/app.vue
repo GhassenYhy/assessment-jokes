@@ -1,12 +1,18 @@
 <template>
     <div class="container">
         <div class="input-field col s6">
-            <input placeholder="Seach for text" id="first_name" type="text" class="validate">
+            <input v-on:input="textFilter = $event.target.value" placeholder="Seach for text" id="first_name" type="text" class="validate">
         </div>
         <p>
+            <label>
+                <input  @click="selectAll" v-model="allSelected" type="checkbox" />
+                <span style="padding-right: 10px; padding-left: 25px">select all</span>
+            </label>
+        </p>
+        <p>
             <label v-for="item in listOfCategories">
-                <input type="checkbox" />
-                <span style="padding-right: 10px; padding-left: 25px">{{item}}</span>
+                <input v-model="checkedCategories" @click="select(item.id)" :value="item.id" type="checkbox" />
+                <span style="padding-right: 10px; padding-left: 25px">{{item.value}}</span>
             </label>
         </p>
         <div class="card horizontal orange lighten-1" style="place-content: center">
@@ -80,26 +86,59 @@ export default {
         return {
             listOfJokes:[],
             listOfCategories: [],
+            checkedCategories: [],
             jokesCounter: 10,
+            allSelected: false,
             loading: false,
+            textFilter: String,
         }
     },
 
     created() {
+        this.textFilter = '';
         this.loading = true;
         axios.get('api/categories').then(value => {
-            this.listOfCategories = value.data;
+            console.log(value.data);
+            value.data.forEach((value)=>{
+                this.listOfCategories.push(
+                    {
+                        id:value,
+                        value: value
+                    }
+                )
+            })
             console.log(this.listOfCategories);
             this.loading = false
         })
     },
     methods: {
         reFetch(){
+            console.log(this.textFilter);
             this.loading = true;
-            axios.get('api/jokes', { params: { categories: 'political,dev', query: 'FATAL' } }).then(value => {
+            axios.get('api/jokes', { params: { categories: this.checkedCategories.toString(), query: this.textFilter } }).then(value => {
                 this.listOfJokes = value.data
                 this.loading = false
             })
+        },
+        addCategory(item, event){
+            this.checkedCategories.push(item)
+            console.log(event.target.checked);
+            if(!event.target.checked) {
+                this.checkedCategories = this.checkedCategories.filter(e => e !== item);
+            }
+        },
+        selectAll: function() {
+            this.allSelected = !this.allSelected;
+            this.checkedCategories = [];
+
+            if (this.allSelected) {
+                for (let category in this.listOfCategories) {
+                    this.checkedCategories.push(this.listOfCategories[category].id.toString());
+                }
+            }
+        },
+        select: function() {
+            this.allSelected = false;
         }
     }
 }
