@@ -1,6 +1,7 @@
 <template>
     <div>
         <h5>Jokes loader</h5>
+        <h6 class="red lighten-1" v-if="this.maxReached">You've reached to maximum of jokes</h6>
         <div class="input-field col s6">
             <input v-on:input="textFilter = $event.target.value" placeholder="Seach for text" id="first_name" type="text" class="validate">
         </div>
@@ -26,7 +27,7 @@
                     <div class="card-content">
                         <p>{{item.value}}</p>
                     </div>
-                    <div class="card-action">
+                    <div v-if="checkExisting(item)" class="card-action">
                         <a href="#" @click="saveToLocal(item)">Add to favorites</a>
                     </div>
                 </div>
@@ -94,14 +95,15 @@ export default {
             allSelected: false,
             loading: false,
             textFilter: String,
+            maxReached: false,
         }
     },
 
     created() {
+        this.favoriteJokes = this.refreshList();
         this.textFilter = '';
         this.loading = true;
         axios.get('api/categories').then(value => {
-            console.log(value.data);
             value.data.forEach((value)=>{
                 this.listOfCategories.push(
                     {
@@ -110,14 +112,15 @@ export default {
                     }
                 )
             })
-            console.log(this.listOfCategories);
             this.loading = false
         });
         this.reFetch();
     },
+    watch: {
+
+    },
     methods: {
         reFetch(){
-            console.log(this.textFilter);
             this.loading = true;
             axios.get('api/jokes', { params: { categories: this.checkedCategories.toString(), query: this.textFilter } }).then(value => {
                 this.listOfJokes = value.data
@@ -145,8 +148,10 @@ export default {
             this.allSelected = false;
         },
         saveToLocal(item){
+            this.maxReached = false;
             const elem = this.refreshList();
-            if (elem && elem.length>0) {
+            console.log(this.favoriteJokes.length);
+            if (elem && elem.length>=0 && elem.length < 2) {
                 for (let i = 0; i<elem.length; i++) {
                     if (elem[i].id === item.id) {
                         return
@@ -154,14 +159,16 @@ export default {
                 }
                 this.favoriteJokes.push(item);
                 localStorage.setItem('Favorite', JSON.stringify(this.favoriteJokes))
-            } else {
-                this.favoriteJokes.push(item);
-                localStorage.setItem('Favorite', JSON.stringify(this.favoriteJokes))
+            } else if ( elem.length === 2) {
+                this.maxReached = true
             }
         },
         refreshList() {
-            return JSON.parse(localStorage.getItem("Favorite"));
+            return JSON.parse(localStorage.getItem("Favorite"))?JSON.parse(localStorage.getItem("Favorite")):[];
         },
+        checkExisting(item){
+            return !(this.favoriteJokes.map(value => value.id).indexOf(item.id) >= 0);
+        }
     }
 }
 </script>
