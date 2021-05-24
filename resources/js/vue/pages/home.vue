@@ -1,20 +1,22 @@
 <template>
     <div>
         <h5>Jokes loader</h5>
-        <h6 class="red lighten-1" v-if="this.maxReached">You've reached to maximum of jokes</h6>
+        <div v-if="this.maxReached" class="card-panel deep-orange lighten-2">You can't add more than 5 jokes to your favorites.</div>
+
         <div class="input-field col s6">
-            <input v-on:input="textFilter = $event.target.value" placeholder="Seach for text" id="first_name" type="text" class="validate">
+            <input v-on:input="textFilter = $event.target.value" placeholder="Seach for text" id="first_name"
+                   type="text" class="validate">
         </div>
         <p>
             <label>
-                <input  @click="selectAll" v-model="allSelected" type="checkbox" />
+                <input @click="selectAll" v-model="allSelected" type="checkbox"/>
                 <span style="padding-right: 10px; padding-left: 25px">select all</span>
             </label>
         </p>
         <p>
             <label v-for="item in listOfCategories">
-                <input v-model="checkedCategories" @click="select(item.id)" :value="item.id" type="checkbox" />
-                <span style="padding-right: 10px; padding-left: 25px">{{item.value}}</span>
+                <input v-model="checkedCategories" @click="select(item.id)" :value="item.id" type="checkbox"/>
+                <span style="padding-right: 10px; padding-left: 25px">{{ item.value }}</span>
             </label>
         </p>
         <div class="card horizontal orange lighten-1" style="place-content: center">
@@ -25,7 +27,7 @@
             <div class="card horizontal">
                 <div class="card-stacked">
                     <div class="card-content">
-                        <p>{{item.value}}</p>
+                        <p>{{ item.value }}</p>
                     </div>
                     <div v-if="checkExisting(item)" class="card-action">
                         <a href="#" @click="saveToLocal(item)">Add to favorites</a>
@@ -39,41 +41,49 @@
                 <div class="spinner-layer spinner-blue">
                     <div class="circle-clipper left">
                         <div class="circle"></div>
-                    </div><div class="gap-patch">
-                    <div class="circle"></div>
-                </div><div class="circle-clipper right">
-                    <div class="circle"></div>
-                </div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
                 </div>
 
                 <div class="spinner-layer spinner-red">
                     <div class="circle-clipper left">
                         <div class="circle"></div>
-                    </div><div class="gap-patch">
-                    <div class="circle"></div>
-                </div><div class="circle-clipper right">
-                    <div class="circle"></div>
-                </div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
                 </div>
 
                 <div class="spinner-layer spinner-yellow">
                     <div class="circle-clipper left">
                         <div class="circle"></div>
-                    </div><div class="gap-patch">
-                    <div class="circle"></div>
-                </div><div class="circle-clipper right">
-                    <div class="circle"></div>
-                </div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
                 </div>
 
                 <div class="spinner-layer spinner-green">
                     <div class="circle-clipper left">
                         <div class="circle"></div>
-                    </div><div class="gap-patch">
-                    <div class="circle"></div>
-                </div><div class="circle-clipper right">
-                    <div class="circle"></div>
-                </div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -83,11 +93,14 @@
 </template>
 
 <script>
+
+import {getJokes, getCategories} from "../services/apis"
+
 export default {
     name: "home",
     data() {
         return {
-            listOfJokes:[],
+            listOfJokes: [],
             listOfCategories: [],
             checkedCategories: [],
             favoriteJokes: [],
@@ -103,11 +116,11 @@ export default {
         this.favoriteJokes = this.refreshList();
         this.textFilter = '';
         this.loading = true;
-        axios.get('api/categories').then(value => {
-            value.data.forEach((value)=>{
+        getCategories().then(value => {
+            value["data"].forEach((value) => {
                 this.listOfCategories.push(
                     {
-                        id:value,
+                        id: value,
                         value: value
                     }
                 )
@@ -116,21 +129,17 @@ export default {
         });
         this.reFetch();
     },
-    watch: {
-
-    },
     methods: {
-        reFetch(){
+        async reFetch() {
             this.loading = true;
-            axios.get('api/jokes', { params: { categories: this.checkedCategories.toString(), query: this.textFilter } }).then(value => {
-                this.listOfJokes = value.data
-                this.loading = false
+            await getJokes(this.checkedCategories.toString(), this.textFilter).then(value => {
+                this.listOfJokes = value
             })
+            this.loading = false
         },
-        addCategory(item, event){
+        addCategory(item, event) {
             this.checkedCategories.push(item)
-            console.log(event.target.checked);
-            if(!event.target.checked) {
+            if (!event.target.checked) {
                 this.checkedCategories = this.checkedCategories.filter(e => e !== item);
             }
         },
@@ -147,26 +156,25 @@ export default {
         select() {
             this.allSelected = false;
         },
-        saveToLocal(item){
+        saveToLocal(item) {
             this.maxReached = false;
             const elem = this.refreshList();
-            console.log(this.favoriteJokes.length);
-            if (elem && elem.length>=0 && elem.length < 2) {
-                for (let i = 0; i<elem.length; i++) {
+            if (elem && elem.length >= 0 && elem.length < 5) {
+                for (let i = 0; i < elem.length; i++) {
                     if (elem[i].id === item.id) {
                         return
                     }
                 }
                 this.favoriteJokes.push(item);
                 localStorage.setItem('Favorite', JSON.stringify(this.favoriteJokes))
-            } else if ( elem.length === 2) {
+            } else if (elem.length === 5) {
                 this.maxReached = true
             }
         },
         refreshList() {
-            return JSON.parse(localStorage.getItem("Favorite"))?JSON.parse(localStorage.getItem("Favorite")):[];
+            return JSON.parse(localStorage.getItem("Favorite")) ? JSON.parse(localStorage.getItem("Favorite")) : [];
         },
-        checkExisting(item){
+        checkExisting(item) {
             return !(this.favoriteJokes.map(value => value.id).indexOf(item.id) >= 0);
         }
     }
