@@ -37,7 +37,7 @@
         </div>
 
         <div v-if="loading" style="text-align: center">
-            <loader></loader>
+            <loader/>
         </div>
 
     </div>
@@ -137,6 +137,7 @@ export default {
 </script>
 
 <style scoped>
+
 .checkboxes {
     padding-right: 10px;
     padding-left: 25px
@@ -144,4 +145,5 @@ export default {
 .centered {
     place-content: center
 }
+
 </style>
