@@ -1,16 +1,16 @@
 <template>
     <div class="container">
-        <ul style="display: flex; padding-right: 10px">
-            <li><router-link to="/">Home</router-link></li>
-            <li>&ensp;/&ensp;</li>
-            <li><router-link to="/fav">Favorites</router-link></li>
-        </ul>
-    <router-view/>
+        <menu-items></menu-items>
+        <router-view/>
      </div>
 </template>
 
 <script>
+import MenuItems from "./components/menuItems"
 export default {
+    components: {
+        MenuItems
+    }
 }
 </script>
 

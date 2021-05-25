@@ -30,12 +30,13 @@ export default {
         }
     },
     created() {
+        this.listOfFavorites = [];
         this.refreshList();
     },
     methods: {
         refreshList() {
             const elem = JSON.parse(localStorage.getItem("Favorite"))
-            return this.listOfFavorites = elem;
+            return this.listOfFavorites = elem?elem:[];
         },
         removeItem(item) {
             this.listOfFavorites = this.listOfFavorites.filter((value) => {

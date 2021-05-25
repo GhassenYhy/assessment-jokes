@@ -10,16 +10,16 @@
         <p>
             <label>
                 <input @click="selectAll" v-model="allSelected" type="checkbox"/>
-                <span style="padding-right: 10px; padding-left: 25px">select all</span>
+                <span class="checkboxes">select all</span>
             </label>
         </p>
         <p>
             <label v-for="item in listOfCategories">
                 <input v-model="checkedCategories" @click="select(item.id)" :value="item.id" type="checkbox"/>
-                <span style="padding-right: 10px; padding-left: 25px">{{ item.value }}</span>
+                <span class="checkboxes">{{ item.value }}</span>
             </label>
         </p>
-        <div class="card horizontal orange lighten-1" style="place-content: center">
+        <div class="card horizontal orange lighten-1 centered">
             <a v-on:click="reFetch()" class="btn-flat">Refetch Jokes</a>
         </div>
 
@@ -37,55 +37,7 @@
         </div>
 
         <div v-if="loading" style="text-align: center">
-            <div class="preloader-wrapper big active">
-                <div class="spinner-layer spinner-blue">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-
-                <div class="spinner-layer spinner-red">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-
-                <div class="spinner-layer spinner-yellow">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-
-                <div class="spinner-layer spinner-green">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="gap-patch">
-                        <div class="circle"></div>
-                    </div>
-                    <div class="circle-clipper right">
-                        <div class="circle"></div>
-                    </div>
-                </div>
-            </div>
+            <loader></loader>
         </div>
 
     </div>
@@ -95,16 +47,19 @@
 <script>
 
 import {getJokes, getCategories} from "../services/apis"
+import Loader from "../components/loader"
 
 export default {
     name: "home",
+    components: {
+        Loader
+    },
     data() {
         return {
             listOfJokes: [],
             listOfCategories: [],
             checkedCategories: [],
             favoriteJokes: [],
-            jokesCounter: 10,
             allSelected: false,
             loading: false,
             textFilter: String,
@@ -181,3 +136,12 @@ export default {
 }
 </script>
 
+<style scoped>
+.checkboxes {
+    padding-right: 10px;
+    padding-left: 25px
+}
+.centered {
+    place-content: center
+}
+</style>
