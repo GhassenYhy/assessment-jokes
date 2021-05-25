@@ -1,3 +1,4 @@
+// Fetches data from the PHP endpoint
 export async function getJokes(categories, query) {
     return axios.get('api/jokes', {params: {categories: categories, query: query}}).then(value => {
         return value.data;

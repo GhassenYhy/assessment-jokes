@@ -85,19 +85,22 @@ export default {
         this.reFetch();
     },
     methods: {
-        async reFetch() {
+        // Refetches data
+        reFetch() {
             this.loading = true;
-            await getJokes(this.checkedCategories.toString(), this.textFilter).then(value => {
+            getJokes(this.checkedCategories.toString(), this.textFilter).then(value => {
                 this.listOfJokes = value
+                this.loading = false
             })
-            this.loading = false
         },
+        // Pushes selected category to the array of checked categories
         addCategory(item, event) {
             this.checkedCategories.push(item)
             if (!event.target.checked) {
                 this.checkedCategories = this.checkedCategories.filter(e => e !== item);
             }
         },
+        // Checks all the checkboxes
         selectAll() {
             this.allSelected = !this.allSelected;
             this.checkedCategories = [];
@@ -111,6 +114,7 @@ export default {
         select() {
             this.allSelected = false;
         },
+        // Pushes data to local storage
         saveToLocal(item) {
             this.maxReached = false;
             const elem = this.refreshList();
@@ -126,9 +130,11 @@ export default {
                 this.maxReached = true
             }
         },
+        // Loads Favorite list from the browser's local storage, assigns an empty array in case of non existing
         refreshList() {
             return JSON.parse(localStorage.getItem("Favorite")) ? JSON.parse(localStorage.getItem("Favorite")) : [];
         },
+        // Checks if the item is already existing in favorites, in case it is, it hides the add to favorites button from the card
         checkExisting(item) {
             return !(this.favoriteJokes.map(value => value.id).indexOf(item.id) >= 0);
         }
